@@ -2,6 +2,7 @@
 #include <unistd.h>
 using namespace std;
 
+//split like python
 vector<string> split(string str, char del){
     string temp = "";   
     vector<string> result;
@@ -25,14 +26,13 @@ int main() {
     else 
         currentUser = getenv("USER");
     cout<<"Hello "<<currentUser<<endl;
-    // cout<<currentUser<<endl;
-
+    
+    //Get current password from user input
     string oldPasswd = "";
     cout<<"Enter old password:";
     cin>>oldPasswd;
-    // oldPasswd = crypt();
-     // importantttttttt
 
+    //read shadow file to get password hash
     ifstream shadowFile("/etc/shadow");
     string line = "";
     vector<string> shadowLines;
@@ -40,21 +40,22 @@ int main() {
         shadowLines.push_back(line+':');
     }
     bool changed = false;
+
     vector<vector<string>> original;
     for (int i = 0; i < shadowLines.size(); i++) {
         vector<string> tmp;
         tmp = split(shadowLines[i],':');
+        //if found user in shadow
         if (tmp[0] == currentUser) {
             
             cout<<"Found user"<<endl;
-
+            //harsh the inputed password with salt from shadow
             oldPasswd = crypt(oldPasswd.c_str(),("$6$" + split(tmp[1],'$')[2]).c_str());
-
-            cout<<oldPasswd<<endl<<tmp[1]<<endl;
-
+            //if newly hashed password is the same with password in shadow, proceed
             if (oldPasswd == tmp[1]) {
                 cout<<"Password correct, please enter new password:";
                 string newPassword = "";
+                //get new password from user to hash
                 cin>> newPassword;
                 newPassword = crypt(newPassword.c_str(),("$6$" + split(tmp[1],'$')[2]).c_str());
                 tmp[1]=newPassword;
@@ -64,6 +65,7 @@ int main() {
         original.push_back(tmp);
     }
     shadowFile.close();
+    //if password changed, rewrite shadow file
     if (changed) {
         ofstream shadowFile("/etc/shadow");
         for (int i = 0; i < original.size(); i++) {

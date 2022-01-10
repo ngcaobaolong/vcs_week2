@@ -1,6 +1,7 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+//split like python
 vector<string> split(string str, char del){
     string temp = "";   
     vector<string> result;
@@ -19,8 +20,9 @@ vector<string> split(string str, char del){
 int main() {
     string username = "";
     cout<<"Enter username:";
+    //get username
     cin>>username;
-
+    //open passwd file and group file
     ifstream passwdFile("/etc/passwd");
     ifstream groupFile("/etc/group");
     bool found = false;
@@ -43,15 +45,17 @@ int main() {
     }
     
     line = "";
+    //extract group list
     vector<string> groupList;
     while (getline (groupFile, line)) {
         vector<string> result;
         result = split(line,':');
-        
+        //if that group contain user, save group name
         if(find(result.begin(), result.end(), username) != result.end()) {
             groupList.push_back(result[0]);
         }
     }
+    //output group that contain user
     for (int i =0;i<groupList.size();i++) {
         cout<<groupList[i]<<" ";
     }
